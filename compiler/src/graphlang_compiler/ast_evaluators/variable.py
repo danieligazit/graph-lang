@@ -2,7 +2,8 @@ from typing import Union, Dict
 
 from dataclasses import dataclass
 
-from graphlang_compiler import EvalResult, Projection
+from graphlang_compiler.eval_result import EvalResult
+from graphlang_compiler.projection import Projection
 from graphlang_compiler.ast_evaluators.evaluator import Evaluator
 
 

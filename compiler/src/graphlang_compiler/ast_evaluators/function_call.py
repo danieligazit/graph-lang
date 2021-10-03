@@ -1,11 +1,12 @@
-from typing import Union, Dict, List
-
 from dataclasses import dataclass
+from itertools import chain
+from typing import Dict, List
 
-from graphlang_compiler import EvalResult, Projection, ValueProjection, ARANGO_FUNCTIONS, Functions, some_util, \
-    CYPHER_FUNCTIONS
 from graphlang_compiler.ast_evaluators.evaluator import Evaluator
-
+from graphlang_compiler.consts import Functions, ARANGO_FUNCTIONS, CYPHER_FUNCTIONS
+from graphlang_compiler.eval_result import EvalResult
+from graphlang_compiler.projection import Projection, ValueProjection
+from graphlang_compiler.utility import some_util
 
 
 @dataclass
@@ -25,7 +26,7 @@ class FunctionCall(Evaluator):
             Functions.LENGTH: ValueProjection,
             Functions.ALL: ValueProjection,
             Functions.ANY: ValueProjection
-        }[self.function]
+        }[self.function]()
 
     def aliases(self):
         return list(chain.from_iterable([arg.aliases() for arg in self.args]))
