@@ -6,7 +6,7 @@ install_requires = open("requirements.txt").read().strip().split("\n")
 dev_requires = open("dev-requirements.txt").read().strip().split("\n")
 
 setup(
-    name="python-query-ast",
+    name="graphlang",
     version='0.1.0',
     install_requires=install_requires,
     python_requires=">=3.6",

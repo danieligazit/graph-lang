@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import List, Type, Iterable, Union, Dict
-from graphlang.consts import CYPHER_OPS, Functions, CYPHER_FUNCTIONS, Direction, Ops
-
+from typing import Type, Iterable, Union
 
 from graphlang.ast_expressions import Assign, Filter, BinaryOp, Attribute, Literal, Traverse, Variable, Collection, \
     AssignIter, Block, EmptyType, FunctionCall, Mapping, Query, Collections
+from graphlang.consts import Direction, Ops
+from graphlang.utility import unique_name
 
 
 @dataclass
@@ -39,7 +39,7 @@ class QueryBuilder:
                     x=BinaryOp(
                         op=Ops.EQ,
                         left=Attribute(
-                            ob=self._query.returns,
+                            ob=self._query.root.returns,
                             name=key
                         ),
                         right=Literal(value)
@@ -153,7 +153,7 @@ def get(vertices) -> QueryBuilder:
     block = Block(
         item=AssignIter(
             left=[item],
-            right=Collections(collections=[Collection(col._get_collection()) for col in vertices])
+            right=Collections(collections=[Collection(col) for col in vertices])
         ),
         returns=item
     )

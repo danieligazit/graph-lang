@@ -2,4 +2,3 @@ shortuuid==1.0.1
 dataclasses
 prettyprinter
 orjson
-../graphlang-compiler
