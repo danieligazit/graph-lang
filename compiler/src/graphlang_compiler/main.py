@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from typing import Type, Iterable, Union
 
-from graphlang.ast_expressions import Assign, Filter, BinaryOp, Attribute, Literal, Traverse, Variable, Collection, \
-    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query, Collections
-from graphlang.consts import Direction, Ops
-from graphlang.utility import unique_name
+from graphlang_compiler import CollectionList
+from graphlang_compiler.ast_evaluators import Assign, Filter, BinaryOp, Attribute, Literal, Traverse, Variable, \
+    Collection, \
+    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query
+from graphlang_compiler.consts import Direction, Ops
+from graphlang_compiler.utility import unique_name
 
 
 @dataclass
@@ -56,7 +58,7 @@ class QueryBuilder:
         traversal = Traverse(
             origin=self._query.pos.returns,
             direction=direction,
-            edge_collections=[Collection(edge) for edge in edges],
+            edge_collections=[Collection(edge._get_collection()) for edge in edges],
             vertex_collections=[]
         )
 
@@ -73,7 +75,7 @@ class QueryBuilder:
     def into(self, vertices):
         vertices = vertices if isinstance(vertices, Iterable) else [vertices]
         self._query.pos.returns = self._query.pos.item.left[0]
-        self._query.pos.item.right.vertex_collections = [Collection(vertex) for vertex in vertices]
+        self._query.pos.item.right.vertex_collections = [Collection(vertex._get_collection()) for vertex in vertices]
         return self
 
     def count(self):
@@ -156,7 +158,7 @@ def get(vertices) -> QueryBuilder:
     block = Block(
         item=AssignIter(
             left=[item],
-            right=Collections(collections=[Collection(col) for col in vertices])
+            right=CollectionList(collections=[Collection(col) for col in vertices])
         ),
         returns=item
     )
@@ -177,7 +179,7 @@ def traverse(edges: Union[Iterable[Type], Type], direction: str = Direction.OUTB
     traversal = Traverse(
         origin=origin,
         direction=direction,
-        edge_collections=[Collection(e) for e in edges],
+        edge_collections=[Collection(e._get_collection()) for e in edges],
         vertex_collections=[]
     )
 
@@ -192,3 +194,8 @@ def traverse(edges: Union[Iterable[Type], Type], direction: str = Direction.OUTB
             pos=block
         )
     )
+
+
+if __name__ == '__main__':
+    p = get(['Person']).match(hey='hi')
+    print(p.get_query().arango())

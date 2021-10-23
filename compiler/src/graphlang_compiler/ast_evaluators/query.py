@@ -28,3 +28,9 @@ class Query(Evaluator):
 
     def evaluate_cypher(self) -> EvalResult:
         return self.root.evaluate_cypher()
+
+    def arango(self):
+        return self.evaluate_arango().format_arango()
+
+    def cypher(self):
+        return self.evaluate_cypher().format_cypher()
