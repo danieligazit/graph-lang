@@ -146,6 +146,9 @@ class QueryBuilder:
     def __eq__(self, other: 'QueryBuilder'):
         return self._compare(Ops.EQ, other._query)
 
+    def get_query(self):
+        return self._query
+
 
 def get(vertices) -> QueryBuilder:
     vertices = vertices if isinstance(vertices, Iterable) else [vertices]
