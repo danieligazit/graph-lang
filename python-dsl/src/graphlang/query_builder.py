@@ -48,7 +48,7 @@ class QueryBuilder:
             )
         return self
 
-    def traverse(self, edges: Union[Iterable[Type], Type], direction: str = Direction.OUTBOUND):
+    def traverse(self, *edges: Union[Iterable[Type], Type], direction: str = Direction.OUTBOUND):
         edges = edges if isinstance(edges, Iterable) else [edges]
 
         vertex, edge = Variable(), Variable()
@@ -70,7 +70,13 @@ class QueryBuilder:
 
         return self
 
-    def into(self, vertices):
+    def traverse_out(self, *edges: Union[Iterable[Type], Type]):
+        return self.traverse(*edges, direction=Direction.OUTBOUND)
+
+    def traverse_in(self, *edges: Union[Iterable[Type], Type]):
+        return self.traverse(*edges, direction=Direction.INBOUND)
+
+    def into(self, *vertices):
         vertices = vertices if isinstance(vertices, Iterable) else [vertices]
         self._query.pos.returns = self._query.pos.item.left[0]
         self._query.pos.item.right.vertex_collections = [Collection(vertex) for vertex in vertices]
@@ -85,7 +91,7 @@ class QueryBuilder:
 
         if isinstance(other, Query):
             return BinaryOp(
-                op, self._query.root, other.root
+                op, self._query.root    , other.root
             )
 
         return BinaryOp(op, self._query.root, other if isinstance(other, Ast) else Literal(value=other))
@@ -150,7 +156,7 @@ class QueryBuilder:
         return self._query
 
 
-def get(vertices) -> QueryBuilder:
+def get(*vertices: str) -> QueryBuilder:
     vertices = vertices if isinstance(vertices, Iterable) else [vertices]
     item = Variable(unique_name())
     block = Block(
@@ -168,7 +174,7 @@ def get(vertices) -> QueryBuilder:
     )
 
 
-def traverse(edges: Union[Iterable[Type], Type], direction: str = Direction.OUTBOUND):
+def traverse(*edges: Union[Iterable[Type], Type], direction: str = Direction.OUTBOUND):
     edges = edges if isinstance(edges, Iterable) else [edges]
 
     vertex, edge = Variable(unique_name()), Variable(unique_name())

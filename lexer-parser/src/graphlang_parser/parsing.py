@@ -1,24 +1,43 @@
 from graphlang import get, QueryBuilder
 from rply import ParserGenerator
-
+from graphlang_compiler.deseriazliation import deserialize
 from graphlang_parser.lexing import build_lexer
 
 pg = ParserGenerator(
-    ['NAME', 'OPEN_PAREN', 'COMMA', 'STRING', 'CLOSE_PAREN', 'DOT']
+    ['NAME', 'NUMBER', 'OPEN_PAREN', 'COMMA', 'STRING', 'CLOSE_PAREN', 'DOT'],
+    precedence=[
+        ('left', ['OPEN_PAREN', 'CLOSE_PAREN']),
+        ('left', ['COMMA'])
+    ]
 )
+
+
+@pg.production('main : object')
+def statement_expr(p):
+    return p[0]
 
 
 @pg.production('expr : STRING')
 def statement_expr(p):
-    return p[0]
+    return p[0].value[1:-1]
 
 
 @pg.production('expr : NUMBER')
 def statement_expr(p):
-    return p[0]
+    return p[0].value
+
+
+@pg.production('expr : list')
+def statement_expr(p):
+    return p
 
 
 @pg.production('list : expr COMMA expr')
+def right_list(p):
+    return [p[0], p[2]]
+
+
+@pg.production('list : list COMMA expr')
 def left_list(p):
     p[0].append(p[2])
     return p[0]
@@ -30,12 +49,6 @@ def right_list(p):
     return p[2]
 
 
-@pg.production('list : expr COMMA expr')
-def right_list(p):
-    print('yo')
-    return p[0], p[2]
-
-
 #
 # @pg.production('main : func')
 # def statement_expr(p):
@@ -43,11 +56,17 @@ def right_list(p):
 #
 #
 #
-# @pg.production('object : NAME OPEN_PAREN list CLOSE_PAREN')
-# def statement_assignment(p):
-#     func = p[0]
-#     if func.value == 'get':
-#         return get(p[2].value[1:-1])
+@pg.production('object : NAME OPEN_PAREN expr CLOSE_PAREN')
+def statement_assignment(p):
+    func = p[0]
+
+    params = p[2]
+    if not isinstance(p[2], list):
+        params = [params]
+
+    if func.value == 'get':
+        return get(*params)
+
 
 #
 # QUERY_FUNCTIONS = {
@@ -72,8 +91,10 @@ def right_list(p):
 
 
 parser = pg.build()
-expression = '"one", "two"'
+expression = 'get("Person")'
 print(list(build_lexer().lex(expression)))
 result = parser.parse(build_lexer().lex(expression))
+
+
 print(result)
 # print(result.get_query())
