@@ -197,5 +197,5 @@ def traverse(edges: Union[Iterable[Type], Type], direction: str = Direction.OUTB
 
 
 if __name__ == '__main__':
-    p = get(['Person']).match(hey='hi')
-    print(p.get_query().arango())
+    p = get(['Person']).match(hey='hi').traverse(['WORKS_IN']).into(['Company'])
+    print(p.get_query().cypher())

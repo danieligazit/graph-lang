@@ -8,6 +8,7 @@ def build_lexer():
     lexer.add('CLOSE_PAREN', r'\)')
     lexer.add('NUMBER', r'\d+')
     lexer.add('NAME', r'[a-zA-Z_]+')
+    lexer.add('COMMA', r'\,')
     lexer.add('STRING', r'\"(\\.|[^\"])*\"')
     lexer.add('DOT', r'\.')
     lexer.ignore(r'\s+')
