@@ -38,9 +38,9 @@ class MultiExpression(Ast):
 
 
 @dataclass
-class Collections(Ast):
+class CollectionList(Ast):
     collections: List[Collection]
-    kind: str = 'Collections'
+    kind: str = 'CollectionList'
 
 
 @dataclass

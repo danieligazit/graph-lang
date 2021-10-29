@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Type, Iterable, Union
 
 from graphlang.ast_expressions import Assign, Filter, BinaryOp, Attribute, Literal, Traverse, Variable, Collection, \
-    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query, Collections
-from graphlang.consts import Direction, Ops
+    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query, CollectionList
+from graphlang.consts import Direction, Ops, Functions
 from graphlang.utility import unique_name
 
 
@@ -162,7 +162,7 @@ def get(*vertices: str) -> QueryBuilder:
     block = Block(
         item=AssignIter(
             left=[item],
-            right=Collections(collections=[Collection(col) for col in vertices])
+            right=CollectionList(collections=[Collection(col) for col in vertices])
         ),
         returns=item
     )

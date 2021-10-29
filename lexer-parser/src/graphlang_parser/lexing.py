@@ -11,6 +11,11 @@ def build_lexer():
     lexer.add('COMMA', r'\,')
     lexer.add('STRING', r'\"(\\.|[^\"])*\"')
     lexer.add('DOT', r'\.')
+    lexer.add('GT', r'>')
+    lexer.add('LT', r'<')
+    lexer.add('GTE', r'>=')
+    lexer.add('LTE', r'<=')
+    lexer.add('EQUALS', r'=')
     lexer.ignore(r'\s+')
 
     return lexer.build()
