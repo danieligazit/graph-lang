@@ -4,7 +4,9 @@ from dataclasses import dataclass
 
 
 from graphlang_compiler.ast_evaluators.evaluator import Evaluator
+from graphlang_compiler.eval_result import EvalResult
 from graphlang_compiler.projection import Projection
+from graphlang_compiler.utility import unique_name
 
 
 @dataclass

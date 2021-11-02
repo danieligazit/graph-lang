@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from typing import Type, Iterable, Union
 
-from graphlang.ast_expressions import Assign, Filter, BinaryOp, Attribute, Literal, Traverse, Variable, Collection, \
-    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query, CollectionList
-from graphlang.consts import Direction, Ops, Functions
-from graphlang.utility import unique_name
+from graphlang_compiler import CollectionList
+from graphlang_compiler.ast_evaluators import Assign, Filter, BinaryOp, Attribute, Literal, Traverse, Variable, \
+    Collection, \
+    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query
+from graphlang_compiler.consts import Direction, Ops
+from graphlang_compiler.utility import unique_name
 
 
 @dataclass
@@ -48,7 +50,7 @@ class QueryBuilder:
             )
         return self
 
-    def traverse(self, *edges: Union[Iterable[Type], Type], direction: str = Direction.OUTBOUND):
+    def traverse(self, edges: Union[Iterable[Type], Type], direction: str = Direction.OUTBOUND):
         edges = edges if isinstance(edges, Iterable) else [edges]
 
         vertex, edge = Variable(), Variable()
@@ -56,7 +58,7 @@ class QueryBuilder:
         traversal = Traverse(
             origin=self._query.pos.returns,
             direction=direction,
-            edge_collections=[Collection(edge) for edge in edges],
+            edge_collections=[Collection(edge._get_collection()) for edge in edges],
             vertex_collections=[]
         )
 
@@ -70,16 +72,10 @@ class QueryBuilder:
 
         return self
 
-    def traverse_out(self, *edges: Union[Iterable[Type], Type]):
-        return self.traverse(*edges, direction=Direction.OUTBOUND)
-
-    def traverse_in(self, *edges: Union[Iterable[Type], Type]):
-        return self.traverse(*edges, direction=Direction.INBOUND)
-
-    def into(self, *vertices):
+    def into(self, vertices):
         vertices = vertices if isinstance(vertices, Iterable) else [vertices]
         self._query.pos.returns = self._query.pos.item.left[0]
-        self._query.pos.item.right.vertex_collections = [Collection(vertex) for vertex in vertices]
+        self._query.pos.item.right.vertex_collections = [Collection(vertex._get_collection()) for vertex in vertices]
         return self
 
     def count(self):
@@ -91,7 +87,7 @@ class QueryBuilder:
 
         if isinstance(other, Query):
             return BinaryOp(
-                op, self._query.root    , other.root
+                op, self._query.root, other.root
             )
 
         return BinaryOp(op, self._query.root, other if isinstance(other, Ast) else Literal(value=other))
@@ -156,7 +152,7 @@ class QueryBuilder:
         return self._query
 
 
-def get(*vertices: str) -> QueryBuilder:
+def get(vertices) -> QueryBuilder:
     vertices = vertices if isinstance(vertices, Iterable) else [vertices]
     item = Variable(unique_name())
     block = Block(
@@ -174,7 +170,7 @@ def get(*vertices: str) -> QueryBuilder:
     )
 
 
-def traverse(*edges: Union[Iterable[Type], Type], direction: str = Direction.OUTBOUND):
+def traverse(edges: Union[Iterable[Type], Type], direction: str = Direction.OUTBOUND):
     edges = edges if isinstance(edges, Iterable) else [edges]
 
     vertex, edge = Variable(unique_name()), Variable(unique_name())
@@ -183,7 +179,7 @@ def traverse(*edges: Union[Iterable[Type], Type], direction: str = Direction.OUT
     traversal = Traverse(
         origin=origin,
         direction=direction,
-        edge_collections=[Collection(e) for e in edges],
+        edge_collections=[Collection(e._get_collection()) for e in edges],
         vertex_collections=[]
     )
 
@@ -198,3 +194,8 @@ def traverse(*edges: Union[Iterable[Type], Type], direction: str = Direction.OUT
             pos=block
         )
     )
+
+
+if __name__ == '__main__':
+    p = get(['Person']).match(hey='hi').traverse(['WORKS_IN']).into(['Company'])
+    print(p.get_query().cypher())

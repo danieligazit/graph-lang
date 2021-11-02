@@ -1,8 +1,8 @@
 import json
 from typing import AnyStr
 
-from graphlang_compiler.ast_evaluators.ast_expressions import Query, Variable, Block, Filter, Assign, BinaryOp, Collection, AssignIter, \
-    EmptyType, Traverse, MultiExpression, Ast, FunctionCall, Attribute, Literal, Collections
+from graphlang_compiler.ast_evaluators import Query, Variable, Block, Filter, Assign, BinaryOp, Collection, AssignIter, \
+    EmptyType, Traverse, MultiExpression, FunctionCall, Attribute, Literal, CollectionList, Evaluator
 
 AST_TYPES = {
     'Query': Query,
@@ -13,7 +13,7 @@ AST_TYPES = {
     'Assign': Assign,
     'BinaryOp': BinaryOp,
     'Collection': Collection,
-    'Collections': Collections,
+    'CollectionList': CollectionList,
     'AssignIter': AssignIter,
     'EmptyType': EmptyType,
     'Traverse': Traverse,
@@ -30,6 +30,6 @@ def query_object_hook(obj):
     return AST_TYPES[obj['kind']](**obj)
 
 
-def deserialize_query(data: AnyStr) -> Ast:
+def deserialize_query(data: AnyStr) -> Evaluator:
     return json.loads(data, object_hook=query_object_hook)
 

@@ -40,8 +40,9 @@ class AssignIter(Evaluator):
             self.right.evaluate_arango()
         )
 
+        is_right_block = self.right.__class__.__name__ == 'Block'
         return EvalResult(
-            expression=f'''{", ".join(left)} in {f'({right})' if isinstance(self.right, Block) else right}''',
+            expression=f'''{", ".join(left)} in {f'({right})' if is_right_block else right}''',
             binds=binds
         )
 
