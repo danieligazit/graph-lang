@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from typing import Type, Iterable, Union
 
-from graphlang_compiler import CollectionList
+
 from graphlang_compiler.ast_evaluators import Assign, Filter, BinaryOp, Attribute, Literal, Traverse, Variable, \
-    Collection, \
-    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query
+    Collection, CollectionList, AssignIter, Block, EmptyType, FunctionCall, Mapping, Query
 from graphlang_compiler.consts import Direction, Ops
 from graphlang_compiler.utility import unique_name
 

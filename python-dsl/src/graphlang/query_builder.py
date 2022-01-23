@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Type, Iterable, Union
+from typing import Type, Iterable, Union, Any
 
 from graphlang.ast_expressions import Assign, Filter, BinaryOp, Attribute, Literal, Traverse, Variable, Collection, \
-    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query, CollectionList
+    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query, CollectionList, Ast
 from graphlang.consts import Direction, Ops, Functions
 from graphlang.utility import unique_name
 
@@ -21,14 +21,24 @@ class QueryBuilder:
             if isinstance(arg, QueryBuilder):
                 arg = arg._query
 
-            aliases = arg.aliases()
-            if aliases:
-                self._query.pos.do.expressions += [
-                    Assign(aliases, [self.pos.returns] * len(aliases)),
-                    Filter(x=arg)
-                ]
-            else:
-                self._query.pos.do.expressions.append(Filter(x=arg))
+            if isinstance(arg, FieldArgument):
+                arg = BinaryOp(
+                    op=arg.op,
+                    left=Attribute(
+                        ob=self._query.root.returns,
+                        name=arg.key
+                    ),
+                    right=Literal(arg.value)
+                )
+
+            # aliases = arg.aliases()
+            # if aliases:
+            #     self._query.pos.do.expressions += [
+            #         Assign(aliases, [self.pos.returns] * len(aliases)),
+            #         Filter(x=arg)
+            #     ]
+            # else:
+            self._query.pos.do.expressions.append(Filter(x=arg))
 
         for key, value in kwargs.items():
             if isinstance(value, QueryBuilder):
@@ -91,7 +101,7 @@ class QueryBuilder:
 
         if isinstance(other, Query):
             return BinaryOp(
-                op, self._query.root    , other.root
+                op, self._query.root, other._query.root
             )
 
         return BinaryOp(op, self._query.root, other if isinstance(other, Ast) else Literal(value=other))
@@ -99,7 +109,7 @@ class QueryBuilder:
     def array(self, sub_query: 'QueryBuilder'):
         sub_query = sub_query._query
 
-        aliases = sub_query.aliases()
+        aliases = []  # sub_query.aliases()
         var = Variable()
 
         expressions = [
@@ -147,12 +157,12 @@ class QueryBuilder:
         return self
 
     def __gt__(self, other: 'QueryBuilder'):
-        return self._compare(Ops.GT, other._query)
+        return self._compare(Ops.GT, other)
 
     def __eq__(self, other: 'QueryBuilder'):
         return self._compare(Ops.EQ, other._query)
 
-    def get_query(self):
+    def get_query(self) -> Query:
         return self._query
 
 
@@ -197,4 +207,19 @@ def traverse(*edges: Union[Iterable[Type], Type], direction: str = Direction.OUT
             root=block,
             pos=block
         )
+    )
+
+
+@dataclass
+class FieldArgument:
+    key: str
+    op: str
+    value: Any
+
+
+def gt(field: str, value: Any):
+    return FieldArgument(
+        key=field,
+        op=Ops.GT,
+        value=value
     )

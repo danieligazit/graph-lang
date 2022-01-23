@@ -16,6 +16,7 @@ def build_lexer():
     lexer.add('GTE', r'>=')
     lexer.add('LTE', r'<=')
     lexer.add('EQUALS', r'=')
+    lexer.ignore(r'\n')
     lexer.ignore(r'\s+')
 
     return lexer.build()

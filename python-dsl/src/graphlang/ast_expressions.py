@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass, field
-from typing import List, Any, Union, Dict
+from typing import List, Any, Union, Dict, Optional
 
 from graphlang.utility import unique_name
 
@@ -11,7 +11,7 @@ class Ast(ABC):
 
 @dataclass
 class Variable(Ast):
-    name: Union[str, None] = None
+    name: Optional[str] = None
     kind: str = 'Variable'
 
     def __post_init__(self):
