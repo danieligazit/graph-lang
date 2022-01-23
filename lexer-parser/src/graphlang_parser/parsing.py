@@ -3,7 +3,7 @@ from typing import Any, List
 
 from orjson import dumps
 
-from graphlang import get, QueryBuilder, traverse, gt
+from graphlang import get, QueryBuilder, traverse, gt, Query
 from rply import ParserGenerator
 from graphlang_compiler import deserialize_query
 from graphlang_parser.lexing import build_lexer
@@ -166,7 +166,7 @@ def empty_method_call(p):
     return QUERY_FUNCTIONS.get(p[2].value)(query)
 
 
-def parse(query: str):
+def parse(query: str) -> Query:
     parser = pg.build()
     result = parser.parse(build_lexer().lex(query))
     blob = dumps(result.get_query())
