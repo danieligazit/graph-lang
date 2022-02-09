@@ -6,7 +6,7 @@ from graphlang_compiler.ast_evaluators.evaluator import Evaluator
 from graphlang_compiler.ast_evaluators.traverse import Traverse
 from graphlang_compiler.eval_result import EvalResult
 from graphlang_compiler.projection import Projection
-from graphlang_compiler.utility import some_util
+from graphlang_compiler.utility import some_util, unique_name
 
 
 @dataclass
@@ -52,7 +52,10 @@ class Block(Evaluator):
             if v_col_expressions:
                 do.insert(0, f'''filter {" or ".join(v_col_expressions)}''')
 
-        expression = '\n'.join([f'for {item}'] + do + ([f'return {returns}'] if returns else []))
+        expression = '\n'.join(
+            [f'for {item}'] +
+            [f'\t {row}' for row in do + ([f'return {returns}'] if returns else [])]
+        )
 
         return EvalResult(
             expression=f'({expression})' if self.inline else expression,
