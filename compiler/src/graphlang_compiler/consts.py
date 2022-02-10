@@ -12,6 +12,7 @@ class Functions:
 class Ops:
     GT = 'GT'
     EQ = 'eq'
+    IN = 'in'
 
 
 ARANGO_FUNCTIONS = {
@@ -28,6 +29,7 @@ CYPHER_FUNCTIONS = {
 
 ARANGO_OPS = {
     Ops.EQ: '==',
+    Ops.IN: 'in',
     Ops.GT: '>'
 }
 

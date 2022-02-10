@@ -12,4 +12,5 @@ class Functions:
 class Ops:
     GT = 'GT'
     EQ = 'eq'
+    IN = 'in'
 

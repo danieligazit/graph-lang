@@ -3,6 +3,7 @@ from typing import AnyStr
 
 from graphlang_compiler.ast_evaluators import Query, Variable, Block, Filter, Assign, BinaryOp, Collection, AssignIter, \
     EmptyType, Traverse, MultiExpression, FunctionCall, Attribute, Literal, CollectionList, Evaluator
+from graphlang_compiler.ast_evaluators.federation import Federation
 
 AST_TYPES = {
     'Query': Query,
@@ -19,7 +20,8 @@ AST_TYPES = {
     'Traverse': Traverse,
     'MultiExpression': MultiExpression,
     'Attribute': Attribute,
-    'Literal': Literal
+    'Literal': Literal,
+    'Federation': Federation
 }
 
 

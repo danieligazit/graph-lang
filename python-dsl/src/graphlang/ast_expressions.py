@@ -125,3 +125,10 @@ class Query(Ast):
     root: Block
     pos: Block
     kind: str = 'Query'
+
+
+@dataclass
+class Federation(Ast):
+    query: Query
+    source: str
+    kind: str = 'Federation'

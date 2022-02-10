@@ -27,3 +27,4 @@ class ArrayProjection(Projection):
 class MappingProjection(Projection):
     mapping: Dict[str, Projection]
     kind: str = 'MappingProjection'
+

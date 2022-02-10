@@ -29,6 +29,7 @@ class Block(Evaluator):
         return self.returns.project(projections)
 
     def evaluate_arango(self):
+
         for expression in self.do.expressions:
             if isinstance(expression, Block):
                 expression.inline = False

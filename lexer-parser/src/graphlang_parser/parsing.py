@@ -174,18 +174,26 @@ def parse(query: str) -> Query:
     query.root.inline = False
     return query
 
+#
+# if __name__ == '__main__':
+#     query = f'''
+#         get("Person").match(
+#             traverse("ActedIn").count() > 0,
+#             key="person",
+#             some > 2,
+#             other="value"
+#         ).traverse("Directed").into("Movie")
+#     '''
+#
+#     result = parse(query)
+#
+#     print(f'ARANGO:\n{result.arango()}\n')
+#     print(f'NEO4J:\n{result.cypher()}\n')
+
 
 if __name__ == '__main__':
-    query = f'''
-        get("Person").match(
-            traverse("ActedIn").count() > 0, 
-            key="person", 
-            some > 2,
-            other="value"
-        ).traverse("Directed").into("Movie")
-    '''
-
-    result = parse(query)
-
-    print(f'ARANGO:\n{result.arango()}\n')
-    print(f'NEO4J:\n{result.cypher()}\n')
+    result = get('Person').match(name='Avi')
+    blob = dumps(result.get_query())
+    query = deserialize_query(blob)
+    query.root.inline = False
+    print(query.arango())
