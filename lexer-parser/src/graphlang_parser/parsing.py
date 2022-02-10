@@ -5,7 +5,7 @@ from orjson import dumps
 
 from graphlang import get, QueryBuilder, traverse, gt, Query
 from rply import ParserGenerator
-from graphlang_compiler import deserialize_query
+from graphlang_compiler import Compiler
 from graphlang_parser.lexing import build_lexer
 
 pg = ParserGenerator(
@@ -193,7 +193,8 @@ def parse(query: str) -> Query:
 
 if __name__ == '__main__':
     result = get('Person').match(name='Avi')
+
+    compiler = Compiler()
     blob = dumps(result.get_query())
-    query = deserialize_query(blob)
-    query.root.inline = False
-    print(query.arango())
+
+    print(compiler.compile(blob).arango())
