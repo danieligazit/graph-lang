@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict
 
@@ -80,3 +81,36 @@ class Block(Evaluator):
             expression=f'[{expression}]' if self.inline else f'match {expression}',
             binds=binds
         )
+
+
+class FederatedBlock(Block):
+    def transform(self, context):
+        joins = joins = defaultdict(list)
+
+        for item in self.do.expressions:
+            print(
+                arg.key in ['name'],
+                isinstance(self._query.pos.item, AssignIter),
+                isinstance(self._query.pos.item.right, CollectionList),
+                self._query.pos.item.right.collections[0].name == 'Person'
+            )
+
+            if isinstance(item, AssignIter) and isinstance(item.right, CollectionList) and \
+                    self.collections[item.right.collections[0].name][arg.key].get('source'):
+                joins[self.collections[item.right.collections[0].name][arg.key]['source']].append(arg)
+
+            for source, joins in joins.items():
+                self._query.pos.do.expressions.append(Filter(
+                    x=BinaryOp(
+                        op=Ops.IN,
+                        left=Attribute(
+                            ob=self._query.root.returns,
+                            name='key'
+                        ),
+                        right=Federation(
+                            query=get(item.right.collections[0].name).match(*joins).get_query(),
+                            source=source
+                        )
+                    )
+                ))
+

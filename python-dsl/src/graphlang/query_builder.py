@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Type, Iterable, Union, Any
 
 from graphlang.ast_expressions import Assign, Filter, BinaryOp, Attribute, Literal, Traverse, Variable, Collection, \
-    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query, CollectionList, Ast, Federation
+    AssignIter, Block, EmptyType, FunctionCall, Mapping, Query, CollectionList, Ast
 from graphlang.consts import Direction, Ops, Functions
 from graphlang.utility import unique_name
 
@@ -28,9 +28,6 @@ class QueryBuilder:
     def match(self, *args, **kwargs):
         args = list(args)
 
-        item = self._query.pos.item
-        joins = defaultdict(list)
-
         for key, value in kwargs.items():
             if isinstance(value, QueryBuilder):
                 value = value._query
@@ -46,49 +43,17 @@ class QueryBuilder:
                 arg = arg._query
 
             if isinstance(arg, FieldArgument):
-                print(
-                    arg.key in ['name'],
-                    isinstance(self._query.pos.item, AssignIter),
-                    isinstance(self._query.pos.item.right, CollectionList),
-                    self._query.pos.item.right.collections[0].name == 'Person'
-                )
 
-                if isinstance(item, AssignIter) and isinstance(item.right, CollectionList) and self.collections[item.right.collections[0].name][arg.key].get('source'):
-                    joins[self.collections[item.right.collections[0].name][arg.key]['source']].append(arg)
-
-                else:
-                    arg = BinaryOp(
-                        op=arg.op,
-                        left=Attribute(
-                            ob=self._query.root.returns,
-                            name=arg.key
-                        ),
-                        right=Literal(arg.value)
-                    )
-
-            self._query.pos.do.expressions.append(Filter(x=arg))
-
-        for source, joins in joins.items():
-            self._query.pos.do.expressions.append(Filter(
-                x=BinaryOp(
-                    op=Ops.IN,
+                arg = BinaryOp(
+                    op=arg.op,
                     left=Attribute(
                         ob=self._query.root.returns,
-                        name='key'
+                        name=arg.key
                     ),
-                    right=Federation(
-                        query=get(item.right.collections[0].name).match(*joins).get_query(),
-                        source=source
-                    )
+                    right=Literal(arg.value)
                 )
-            ))
-            # aliases = arg.aliases()
-            # if aliases:
-            #     self._query.pos.do.expressions += [
-            #         Assign(aliases, [self.pos.returns] * len(aliases)),
-            #         Filter(x=arg)
-            #     ]
-            # else:
+
+            self._query.pos.do.expressions.append(Filter(x=arg))
 
         return self
 
