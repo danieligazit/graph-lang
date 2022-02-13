@@ -3,6 +3,7 @@ from typing import Union, List, Iterable, Dict
 
 from dataclasses import dataclass
 
+from graphlang.ast_expressions import Block
 from graphlang_compiler.eval_result import EvalResult
 from graphlang_compiler.projection import Projection
 from graphlang_compiler.ast_evaluators import Evaluator, Variable

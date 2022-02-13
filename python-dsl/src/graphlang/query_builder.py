@@ -128,7 +128,7 @@ class QueryBuilder:
     def as_var(self, var_name: str):
         var = Variable(var_name)
         self._query.pos.do.expressions.append(
-            Assign([var], self.pos.returns)
+            Assign([var], self._query.pos.returns)
         )
 
         return self
@@ -222,4 +222,10 @@ def gt(field: str, value: Any):
         key=field,
         op=Ops.GT,
         value=value
+    )
+
+
+def var(name):
+    return Variable(
+        name=name
     )

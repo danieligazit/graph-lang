@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Any, List
 
-from orjson import dumps
-
-from graphlang import get, QueryBuilder, traverse, gt, Query
+from graphlang import get, QueryBuilder, traverse, gt, var
+from graphlang_compiler import Compiler
 from rply import ParserGenerator
-from graphlang_compiler import deserialize_query
+
+from orjson import dumps
 from graphlang_parser.lexing import build_lexer
 
 pg = ParserGenerator(
@@ -108,7 +108,8 @@ def function_call(func_name: str, params: List[Any]):
     # TODO: catch KeyError
     return {
         'get': get,
-        'traverse': traverse
+        'traverse': traverse,
+        'var': var
     }[func_name](*params)
 
 
@@ -123,7 +124,8 @@ QUERY_FUNCTIONS = {
     'traverse': QueryBuilder.traverse,
     'into': QueryBuilder.into,
     'count': QueryBuilder.count,
-    'as_var': QueryBuilder.as_var
+    'as_var': QueryBuilder.as_var,
+    'select': QueryBuilder.select
 }
 
 
@@ -166,26 +168,27 @@ def empty_method_call(p):
     return QUERY_FUNCTIONS.get(p[2].value)(query)
 
 
-def parse(query: str) -> Query:
+def parse(query: str) -> str:
     parser = pg.build()
     result = parser.parse(build_lexer().lex(query))
-    blob = dumps(result.get_query())
-    query = deserialize_query(blob)
-    query.root.inline = False
-    return query
+
+    return dumps(result.get_query())
 
 
 if __name__ == '__main__':
-    query = f'''
-        get("Person").match(
-            traverse("ActedIn").count() > 0, 
-            key="person", 
-            some > 2,
-            other="value"
-        ).traverse("Directed").into("Movie")
-    '''
+    compiler = Compiler()
+    compiled = compiler.compile(parse(
+        f'''
+            get("Person").match(
+                traverse("ActedIn").count() > 0, 
+                key="person", 
+                some > 2,
+                other="value"
+            ).traverse("Directed").into("Movie").as_var("a").traverse("FollowedBy").into("Person").select(
+                actor=var("a")
+            )
+        '''
+    ))
 
-    result = parse(query)
-
-    print(f'ARANGO:\n{result.arango()}\n')
-    print(f'NEO4J:\n{result.cypher()}\n')
+    print(f'ARANGO:\n{compiled.arango()}\n')
+    print(f'NEO4J:\n{compiled.cypher()}\n')
